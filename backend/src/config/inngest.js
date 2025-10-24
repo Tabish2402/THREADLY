@@ -23,13 +23,13 @@ const syncUser = inngest.createFunction(
     await User.create(newUser);
 
     // Stream-related functionality (disabled for now)
-    // await upsertStreamUser({
-    //   id: newUser.clerkId.toString(),
-    //   name: newUser.name,
-    //   image: newUser.image,
-    // });
+    await upsertStreamUser({
+       id: newUser.clerkId.toString(),
+       name: newUser.name,
+     image: newUser.image,
+     });
 
-    // await addUserToPublicChannels(newUser.clerkId.toString());
+     await addUserToPublicChannels(newUser.clerkId.toString());
   }
 );
 
@@ -42,7 +42,7 @@ const deleteUserFromDB = inngest.createFunction(
     await User.deleteOne({ clerkId: id });
 
     // Stream-related functionality (disabled for now)
-    // await deleteStreamUser(id.toString());
+     await deleteStreamUser(id.toString());
   }
 );
 
