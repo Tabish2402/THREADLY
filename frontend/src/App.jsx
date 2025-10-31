@@ -10,6 +10,8 @@ import * as Sentry from "@sentry/react";
 const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
 const App = () => {
+  console.log("✅ VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
+
   const { isSignedIn, isLoaded } = useAuth();
 
   if (!isLoaded) return null;

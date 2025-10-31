@@ -1,13 +1,14 @@
 import { Inngest } from "inngest";
 import { connectDB } from "./db.js";
 import { User } from "../models/user.model.js"; // Import the User model
+import { addUserToPublicChannels, deleteStreamUser, upsertStreamUser } from "./stream.js";
 
 // Create a client to send and receive events
-export const inngest = new Inngest({ id: "slack-clone" });
+export const inngest = new Inngest({ id: "webhook-integration" });
 
 const syncUser = inngest.createFunction(
   { id: "sync-user" },
-  { event: "clerk/user.created" },
+  { event: "user.created" },
   async ({ event }) => {
     await connectDB();
 
@@ -22,29 +23,27 @@ const syncUser = inngest.createFunction(
 
     await User.create(newUser);
 
-    // Stream-related functionality (disabled for now)
     await upsertStreamUser({
-       id: newUser.clerkId.toString(),
-       name: newUser.name,
-     image: newUser.image,
-     });
+      id: newUser.clerkId.toString(),
+      name: newUser.name,
+      image: newUser.image,
+    });
 
-     await addUserToPublicChannels(newUser.clerkId.toString());
+    await addUserToPublicChannels(newUser.clerkId.toString());
   }
 );
 
 const deleteUserFromDB = inngest.createFunction(
   { id: "delete-user-from-db" },
-  { event: "clerk/user.deleted" },
+  { event: "user.deleted" },
   async ({ event }) => {
     await connectDB();
     const { id } = event.data;
     await User.deleteOne({ clerkId: id });
 
-    // Stream-related functionality (disabled for now)
-     await deleteStreamUser(id.toString());
+    await deleteStreamUser(id.toString());
   }
 );
 
-// Export Inngest functions
+// Create an empty array where we'll export future Inngest functions
 export const functions = [syncUser, deleteUserFromDB];

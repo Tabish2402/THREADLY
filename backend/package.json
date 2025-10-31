@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "node --watch --import ./instruments.js src/server.js",
-  "start": "node --import ./instruments.js src/server.js"
-},
+    "dev": "node --import ./instrument.js src/server.js",
+    "start": "node --import ./instrument.js src/server.js"
+  },
   "keywords": [],
   "author": "",
   "type": "module",

@@ -1,9 +1,8 @@
-import React from 'react';
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
- import { ClerkProvider } from '@clerk/clerk-react'
+import React, { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.jsx";
+import { ClerkProvider } from "@clerk/clerk-react";
 import {
   Routes,
   Route,
@@ -13,24 +12,24 @@ import {
   createRoutesFromChildren,
   matchRoutes,
 } from "react-router";
- import {Toaster} from "react-hot-toast"
+import { Toaster } from "react-hot-toast";
+
 import * as Sentry from "@sentry/react";
-import {
- 
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
-import AuthProvider from './provider/AuthProvider.jsx'
-const queryClient = new QueryClient()
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AuthProvider from "./providers/AuthProvider.jsx";
+
+const queryClient = new QueryClient();
+
 // Import your Publishable Key
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing Publishable Key')
+  throw new Error("Missing Publishable Key");
 }
 
 Sentry.init({
-  dsn: "https://b54b7a9d34f1fb72292bc02636d7d13b@o4510246038339585.ingest.de.sentry.io/4510254196392016",
+  dsn: import.meta.env.VITE_SENTRY_DSN,
   integrations: [
     Sentry.reactRouterV7BrowserTracingIntegration({
       useEffect: React.useEffect,
@@ -43,18 +42,17 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-<BrowserRouter >
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-    <App />
-    </AuthProvider>
-    <Toaster/>
-    </QueryClientProvider>
-    </BrowserRouter>
-    
-     </ClerkProvider>
-  </StrictMode>,
-)
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+          <Toaster position="top-right" />
+        </QueryClientProvider>
+      </BrowserRouter>
+    </ClerkProvider>
+  </StrictMode>
+);
