@@ -88,10 +88,13 @@ const UsersList = ({ activeChannel }) => {
               <div className="relative">
                 {user.image ? (
                   <img
-                    src={user.image}
-                    alt={user.name || user.id}
-                    className="w-4 h-4 rounded-full"
-                  />
+  src={user.image}
+  alt={user.name || user.id}
+  className="w-4 h-4 rounded-full"
+  onError={(e) => {
+    e.currentTarget.src = "/default-avatar.png"; // or any local fallback
+  }}
+/>
                 ) : (
                   <div className="w-4 h-4 rounded-full bg-gray-400 flex items-center justify-center">
                     <span className="text-xs text-white">
