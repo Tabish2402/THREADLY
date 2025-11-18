@@ -1,4 +1,4 @@
-<h1 align="center">✨ Slack Clone with Chat & Video Calling ✨</h1>
+<h1 align="center">✨ THREADLY with Chat & Video Calling ✨</h1>
 
 
 
