@@ -491,6 +491,9 @@
   min-height: 0;
   overflow: visible;
   display: block;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
 }
 
 .team-channel-list__content::-webkit-scrollbar {
