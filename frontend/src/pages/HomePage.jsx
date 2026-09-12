@@ -24,11 +24,11 @@ import CustomChannelHeader from "../components/CustomChannelHeader";
 const HomePage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [activeChannel, setActiveChannel] = useState(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const { chatClient, error, isLoading } = useStreamChat();
 
-  // set active channel from URL params
   useEffect(() => {
     if (chatClient) {
       const channelId = searchParams.get("channel");
@@ -39,19 +39,40 @@ const HomePage = () => {
     }
   }, [chatClient, searchParams]);
 
-  // todo: handle this with a better component
   if (error) return <p>Something went wrong...</p>;
   if (isLoading || !chatClient) return <PageLoader />;
 
   return (
     <div className="chat-wrapper">
       <Chat client={chatClient}>
-        <div className="chat-container">
+        <div className="chat-container relative flex h-screen overflow-hidden">
+
+          {/* MOBILE OVERLAY */}
+          {isSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black/40 z-40 md:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+
           {/* LEFT SIDEBAR */}
-          <div className="str-chat__channel-list">
-            <div className="team-channel-list">
-              {/* HEADER */}
-              <div className="team-channel-list__header gap-4">
+          <div
+            className={`
+              threadly-sidebar
+              fixed md:static
+              top-0 left-0 h-screen z-50
+              bg-white
+              overflow-hidden
+              transform transition-transform duration-300
+              ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+              md:translate-x-0
+            `}
+          >
+            {/* Sidebar column */}
+            <div className="team-channel-list flex flex-col h-full">
+
+              {/* HEADER (fixed) */}
+              <div className="team-channel-list__header gap-4 shrink-0">
                 <div className="brand-container">
                   <img src="/logo.png" alt="Logo" className="brand-logo" />
                   <span className="brand-name">THREADLY</span>
@@ -60,28 +81,36 @@ const HomePage = () => {
                   <UserButton />
                 </div>
               </div>
-              {/* CHANNELS LIST */}
+
+              {/* SCROLLABLE CONTENT */}
               <div className="team-channel-list__content">
                 <div className="create-channel-section">
-                  <button onClick={() => setIsCreateModalOpen(true)} className="create-channel-btn">
+                  <button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="create-channel-btn"
+                  >
                     <PlusIcon className="size-4" />
                     <span>Create Channel</span>
                   </button>
                 </div>
 
-                {/* CHANNEL LIST */}
                 <ChannelList
-                  filters={{ members: { $in: [chatClient?.user?.id] } }}
+                  filters={{ members: { $in: [chatClient.user.id] } }}
                   options={{ state: true, watch: true }}
                   Preview={({ channel }) => (
                     <CustomChannelPreview
                       channel={channel}
                       activeChannel={activeChannel}
-                      setActiveChannel={(channel) => setSearchParams({ channel: channel.id })}
+                      setActiveChannel={(channel) => {
+                        setSearchParams({ channel: channel.id });
+                        setIsSidebarOpen(false);
+                      }}
                     />
                   )}
                   List={({ children, loading, error }) => (
                     <div className="channel-sections">
+
+                      {/* CHANNELS */}
                       <div className="section-header">
                         <div className="section-title">
                           <HashIcon className="size-4" />
@@ -89,12 +118,12 @@ const HomePage = () => {
                         </div>
                       </div>
 
-                      {/* todos: add better components here instead of just a simple text  */}
-                      {loading && <div className="loading-message">Loading channels...</div>}
-                      {error && <div className="error-message">Error loading channels</div>}
+                      {loading && <div>Loading channels…</div>}
+                      {error && <div>Error loading channels</div>}
 
                       <div className="channels-list">{children}</div>
 
+                      {/* DIRECT MESSAGES */}
                       <div className="section-header direct-messages">
                         <div className="section-title">
                           <UsersIcon className="size-4" />
@@ -109,23 +138,29 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* RIGHT CONTAINER */}
-          <div className="chat-main">
+          {/* RIGHT CHAT AREA */}
+          <div className="chat-main flex-1 overflow-hidden">
             <Channel channel={activeChannel}>
               <Window>
-                <CustomChannelHeader />
+                <CustomChannelHeader
+                  onMenuClick={() => setIsSidebarOpen(true)}
+                />
                 <MessageList />
                 <MessageInput />
               </Window>
-
               <Thread />
             </Channel>
           </div>
         </div>
 
-        {isCreateModalOpen && <CreateChannelModal onClose={() => setIsCreateModalOpen(false)} />}
+        {isCreateModalOpen && (
+          <CreateChannelModal
+            onClose={() => setIsCreateModalOpen(false)}
+          />
+        )}
       </Chat>
     </div>
   );
 };
+
 export default HomePage;

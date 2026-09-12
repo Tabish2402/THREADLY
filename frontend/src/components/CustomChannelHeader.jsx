@@ -1,4 +1,11 @@
-import { HashIcon, LockIcon, UsersIcon, PinIcon, VideoIcon } from "lucide-react";
+import {
+  HashIcon,
+  LockIcon,
+  UsersIcon,
+  PinIcon,
+  VideoIcon,
+  MenuIcon,
+} from "lucide-react";
 import { useChannelStateContext } from "stream-chat-react";
 import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
@@ -6,7 +13,7 @@ import MembersModal from "./MembersModal";
 import PinnedMessagesModal from "./PinnedMessagesModal";
 import InviteModal from "./InviteModal";
 
-const CustomChannelHeader = () => {
+const CustomChannelHeader = ({ onMenuClick }) => {
   const { channel } = useChannelStateContext();
   const { user } = useUser();
 
@@ -21,7 +28,9 @@ const CustomChannelHeader = () => {
     (member) => member.user.id !== user.id
   );
 
-  const isDM = channel.data?.member_count === 2 && channel.data?.id.includes("user_");
+  const isDM =
+    channel.data?.member_count === 2 &&
+    channel.data?.id.includes("user_");
 
   const handleShowPinned = async () => {
     const channelState = await channel.query();
@@ -40,7 +49,16 @@ const CustomChannelHeader = () => {
 
   return (
     <div className="h-14 border-b border-gray-200 flex items-center px-4 justify-between bg-white">
+      {/* LEFT SIDE */}
       <div className="flex items-center gap-3">
+        {/* MOBILE MENU BUTTON */}
+        <button
+          onClick={onMenuClick}
+          className="relative z-50 md:hidden p-2 rounded hover:bg-gray-100"
+        >
+          <MenuIcon className="size-5 text-[#616061]" />
+        </button>
+
         <div className="flex items-center gap-2">
           {channel.data?.private ? (
             <LockIcon className="size-4 text-[#616061]" />
@@ -56,19 +74,24 @@ const CustomChannelHeader = () => {
             />
           )}
 
-          <span className="font-medium text-[#1D1C1D]">
-            {isDM ? otherUser?.user?.name || otherUser?.user?.id : channel.data?.id}
+          <span className="font-medium text-[#1D1C1D] truncate max-w-[140px] sm:max-w-none">
+            {isDM
+              ? otherUser?.user?.name || otherUser?.user?.id
+              : channel.data?.id}
           </span>
         </div>
       </div>
 
+      {/* RIGHT SIDE */}
       <div className="flex items-center gap-3">
         <button
           className="flex items-center gap-2 hover:bg-[#F8F8F8] py-1 px-2 rounded"
           onClick={() => setShowMembers(true)}
         >
           <UsersIcon className="size-5 text-[#616061]" />
-          <span className="text-sm text-[#616061]">{memberCount}</span>
+          <span className="text-sm text-[#616061]">
+            {memberCount}
+          </span>
         </button>
 
         <button
@@ -80,16 +103,23 @@ const CustomChannelHeader = () => {
         </button>
 
         {channel.data?.private && (
-          <button className="btn btn-primary" onClick={() => setShowInvite(true)}>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowInvite(true)}
+          >
             Invite
           </button>
         )}
 
-        <button className="hover:bg-[#F8F8F8] p-1 rounded" onClick={handleShowPinned}>
+        <button
+          className="hover:bg-[#F8F8F8] p-1 rounded"
+          onClick={handleShowPinned}
+        >
           <PinIcon className="size-4 text-[#616061]" />
         </button>
       </div>
 
+      {/* MODALS */}
       {showMembers && (
         <MembersModal
           members={Object.values(channel.state.members)}
@@ -104,7 +134,12 @@ const CustomChannelHeader = () => {
         />
       )}
 
-      {showInvite && <InviteModal channel={channel} onClose={() => setShowInvite(false)} />}
+      {showInvite && (
+        <InviteModal
+          channel={channel}
+          onClose={() => setShowInvite(false)}
+        />
+      )}
     </div>
   );
 };
